@@ -1,10 +1,11 @@
+const saintPetersburgPoint = [59.938951, 30.315635];
+
 export default {
   namespaced: true,
   state: () => ({
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    // TODO: initialize center
     zoom: 5,
-    center: [59.938951, 30.315635],
+    center: saintPetersburgPoint,
     bounds: null,
   }),
   mutations: {
@@ -18,5 +19,4 @@ export default {
       state.bounds = bounds;
     },
   },
-  actions: {},
 };

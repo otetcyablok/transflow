@@ -5,36 +5,42 @@
     :zoom.sync="zoom"
     :center.sync="center"
     :bounds.sync="bounds"
+    @ready="onMapReady"
   >
     <l-tile-layer :url="url" />
-    <template v-for="route in routes">
-      <l-polyline
-        :ref="`route-${route.id}`"
-        :key="route.name"
-        :lat-lngs="route.points"
-        :color="'green'"
-        :fill-opacity="0"
-        :visible="selectedRouteId
-              ? selectedRouteId === route.id
-              : tabActive === tabs.ROUTES"
-        @click="onRouteClick(route)"
-      >
-        <!-- TODO: tooltip on above pointer -->
-        <l-tooltip :options="{ direction: 'top' }">{{ route.name }}</l-tooltip>
-      </l-polyline>
-      <l-marker
-        v-for="stop in route.stops"
-        :key="`${route.id} ${stop.id} ${stop.forward ? 'forward' : 'backward'}`"
-        :ref="`stop-${stop.id}`"
-        :lat-lng="stop.point"
-        :icon="stop.forward ? iconForward : iconBackward"
-        :visible="selectedRouteId
-              ? selectedRouteId === stop.routeId
-              : (!selectedStopId || selectedStopId === stop.id)"
-      >
-        <l-tooltip :options="{ direction: 'top' }">{{ stop.name }}</l-tooltip>
-      </l-marker>
-    </template>
+    <l-feature-group ref="allMapObjects">
+      <template v-for="route in routes">
+        <l-polyline
+          :ref="`route-${route.id}`"
+          :key="route.name"
+          :lat-lngs="route.points"
+          :color="'green'"
+          :fill-opacity="0"
+          :visible="selectedRouteId
+            ? selectedRouteId === route.id
+            : tabActive === tabs.ROUTES"
+          @click="toggleRouteSelection(route)"
+        >
+          <!--
+            Здесь я бы в идеале показывал тултип над курсором, а не как получается по умолчанию,
+            однако в рамках тестового задания решил не тратить на это время
+          -->
+          <l-tooltip :options="{ direction: 'top' }">{{ route.name }}</l-tooltip>
+        </l-polyline>
+        <l-marker
+          v-for="stop in route.stops"
+          :key="`${route.id} ${stop.id} ${stop.forward ? 'forward' : 'backward'}`"
+          :ref="`stop-${stop.id}`"
+          :lat-lng="stop.point"
+          :icon="stop.forward ? iconForward : iconBackward"
+          :visible="selectedRouteId
+            ? selectedRouteId === stop.routeId
+            : (!selectedStopId || selectedStopId === stop.id)"
+        >
+          <l-tooltip :options="{ direction: 'top' }">{{ stop.name }}</l-tooltip>
+        </l-marker>
+      </template>
+    </l-feature-group>
   </l-map>
 </template>
 
@@ -42,17 +48,17 @@
 import { mapGetters, mapState } from 'vuex';
 import L from 'leaflet';
 import {
+  LFeatureGroup,
   LMap,
-  LTileLayer,
   LMarker,
   LPolyline,
+  LTileLayer,
   LTooltip,
 } from 'vue2-leaflet';
 
 const iconCommons = {
   iconSize: [26, 26],
   iconAnchor: [13, 13],
-  // tooltipAnchor: [0, 0],
 };
 const iconForward = L.icon({
   ...iconCommons,
@@ -66,10 +72,11 @@ const iconBackward = L.icon({
 export default {
   name: 'LeafletMap',
   components: {
+    LFeatureGroup,
     LMap,
-    LTileLayer,
     LMarker,
     LPolyline,
+    LTileLayer,
     LTooltip,
   },
   data() {
@@ -132,7 +139,12 @@ export default {
     },
   },
   methods: {
-    onRouteClick(route) {
+    onMapReady() {
+      const bounds = this.$refs.allMapObjects.mapObject.getBounds();
+
+      this.$store.commit('map/setBounds', bounds);
+    },
+    toggleRouteSelection(route) {
       const routeId = this.selectedRouteId && this.selectedRouteId === route.id
         ? null
         : route.id;
@@ -147,7 +159,7 @@ export default {
     centerMapOnStop(id) {
       const stopEl = this.$refs[`stop-${id}`][0];
 
-      this.$refs.map.mapObject.flyTo(stopEl.mapObject.getLatLng(), 12);
+      this.$refs.map.mapObject.flyTo(stopEl.mapObject.getLatLng(), 13);
     },
   },
 };

@@ -45,18 +45,7 @@ export default {
   },
   watch: {
     selectedRouteId(value) {
-      const selectedRowsLength = this.gridApi.getSelectedRows().length;
-
-      if (value && !selectedRowsLength) {
-        this.gridApi.setNodesSelected({
-          nodes: [this.gridApi.getRowNode(value)],
-          newValue: true,
-        });
-      }
-
-      if (!value && selectedRowsLength) {
-        this.gridApi.deselectAll();
-      }
+      this.syncSelection(value);
     },
   },
   created() {
@@ -76,12 +65,28 @@ export default {
     },
     onGridReady(params) {
       this.gridApi = params.api;
+
+      this.syncSelection(this.selectedRouteId);
     },
     onSelectionChanged() {
       const selectedRows = this.gridApi.getSelectedRows();
       const routeId = selectedRows[0]?.id || null;
 
       this.$store.commit('setSelectedRouteId', routeId);
+    },
+    syncSelection(id) {
+      const selectedRowsLength = this.gridApi.getSelectedRows().length;
+
+      if (id && !selectedRowsLength) {
+        this.gridApi.setNodesSelected({
+          nodes: [this.gridApi.getRowNode(id)],
+          newValue: true,
+        });
+      }
+
+      if (!id && selectedRowsLength) {
+        this.gridApi.deselectAll();
+      }
     },
   },
 };

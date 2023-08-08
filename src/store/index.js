@@ -4,8 +4,6 @@ import Vuex from 'vuex';
 import { prepareRoute } from '@/api/helpers';
 import { fetchRoutes } from '@/api';
 
-import routesJSON from './data.json';
-
 import mapModule from './map';
 
 Vue.use(Vuex);
@@ -18,10 +16,8 @@ const TABS = {
 export default new Vuex.Store({
   state: {
     loadingRoutes: false,
-    dataLoaded: true,
-    rawRoutes: routesJSON,
-    // rawRoutes: [routesJSON[0]],
-    // rawRoutes: [],
+    dataLoaded: false,
+    rawRoutes: [],
     selectedRouteId: null,
     selectedStopId: null,
     tabActive: TABS.ROUTES,
