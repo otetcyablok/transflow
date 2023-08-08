@@ -1,37 +1,31 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import axios from 'axios';
+
+import { prepareRoute } from '@/api/helpers';
+import { fetchRoutes } from '@/api';
 
 import routesJSON from './data.json';
 
+import mapModule from './map';
+
 Vue.use(Vuex);
 
-const apiURL = 'https://220.transflow.ru/api/public/v1/routes_data?key=012345678abc';
-
-function prepareStop(rawStop) {
-  return {
-    id: rawStop.ID,
-    name: rawStop.Name,
-    point: [rawStop.Lat, rawStop.Lon],
-    forward: rawStop.Forward,
-  };
-}
-function prepareRoute(rawRoute) {
-  return {
-    id: rawRoute.ID,
-    name: rawRoute.Name,
-    description: rawRoute.Description,
-    stopsLength: rawRoute.Stops.length,
-    points: rawRoute.Stops.map((point) => [point.Lat, point.Lon]),
-    stops: rawRoute.Stops.map((rawStop) => prepareStop(rawStop)),
-  };
-}
+const TABS = {
+  ROUTES: 'routes',
+  STOPS: 'stops',
+};
 
 export default new Vuex.Store({
   state: {
     loadingRoutes: false,
-    rawRoutes: [routesJSON[0]],
+    dataLoaded: true,
+    rawRoutes: routesJSON,
+    // rawRoutes: [routesJSON[0]],
     // rawRoutes: [],
+    selectedRouteId: null,
+    selectedStopId: null,
+    tabActive: TABS.ROUTES,
+    tabs: Object.freeze(TABS),
   },
   getters: {
     routesById(state) {
@@ -52,6 +46,11 @@ export default new Vuex.Store({
 
       getters.routes.forEach((route) => {
         route.stops.forEach((stop) => {
+          /*
+            Можно было бы добавить дополнительные проверки по id маршрута,
+            потому что я заметил остановки с одинаковым id,
+            но c разными направлениями на одном и том же маршруте
+          */
           if (stops[stop.id]) {
             stops[stop.id].includeInRoutesCount += 1;
           } else {
@@ -70,30 +69,43 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    setActiveTab(state, tab) {
+      state.tabActive = tab;
+    },
+    setDataLoaded(state, isLoaded) {
+      state.dataLoaded = isLoaded;
+    },
     setLoading(state, isLoading) {
       state.loadingRoutes = isLoading;
     },
     setRawRoutes(state, routes) {
       state.rawRoutes = routes;
     },
+    setSelectedRouteId(state, id) {
+      state.selectedRouteId = id;
+    },
+    setSelectedStopId(state, id) {
+      state.selectedStopId = id;
+    },
   },
   actions: {
     async fetchRoutes({ commit, state }) {
-      // TODO: remove next line
-      if (state.rawRoutes.length) return;
+      if (state.dataLoaded) return;
 
       let routes = [];
 
       commit('setLoading', true);
       try {
-        ({ data: routes } = await axios.get(apiURL));
+        routes = await fetchRoutes();
       } catch (e) {
         // TODO: implement catch behaviour
       }
       commit('setLoading', false);
+      commit('setDataLoaded', true);
       commit('setRawRoutes', routes);
     },
   },
   modules: {
+    map: mapModule,
   },
 });
