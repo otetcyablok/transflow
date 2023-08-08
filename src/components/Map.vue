@@ -5,7 +5,7 @@
     :zoom.sync="zoom"
     :center.sync="center"
     :bounds.sync="bounds"
-    @ready="onMapReady"
+    @ready="bindMapToAllObjects"
   >
     <l-tile-layer :url="url" />
     <l-feature-group ref="allMapObjects">
@@ -139,7 +139,7 @@ export default {
     },
   },
   methods: {
-    onMapReady() {
+    bindMapToAllObjects() {
       const bounds = this.$refs.allMapObjects.mapObject.getBounds();
 
       this.$store.commit('map/setBounds', bounds);
