@@ -33,7 +33,9 @@ export default {
     };
   },
   computed: {
-    ...mapState(['selectedStopId']),
+    ...mapState({
+      selectedStopId: (state) => state.selection.selectedStopId,
+    }),
     ...mapGetters(['stops']),
   },
   watch: {

@@ -51,7 +51,9 @@ export default {
     };
   },
   computed: {
-    ...mapState(['loadingRoutes']),
+    ...mapState({
+      loadingRoutes: (state) => state.api.loadingRoutes,
+    }),
     ...mapGetters(['routesById']),
     route() {
       return this.routesById[this.$route.params.id];

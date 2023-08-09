@@ -40,7 +40,9 @@ export default {
     };
   },
   computed: {
-    ...mapState(['selectedRouteId']),
+    ...mapState({
+      selectedRouteId: (state) => state.selection.selectedRouteId,
+    }),
     ...mapGetters(['routes']),
   },
   watch: {

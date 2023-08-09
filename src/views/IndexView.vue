@@ -39,7 +39,10 @@ export default {
     this.fetchRoutes();
   },
   computed: {
-    ...mapState(['loadingRoutes', 'tabs']),
+    ...mapState({
+      loadingRoutes: (state) => state.api.loadingRoutes,
+      tabs: (state) => state.interface.tabs,
+    }),
     ...mapGetters(['routes']),
     preparedTabs() {
       return [{
@@ -52,7 +55,7 @@ export default {
     },
     tabActive: {
       get() {
-        return this.$store.state.tabActive;
+        return this.$store.state.interface.tabActive;
       },
       set(value) {
         this.$store.commit('setActiveTab', value);
