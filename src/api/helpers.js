@@ -1,3 +1,7 @@
+const VEHICLES = {
+  TROLLEY: 3,
+};
+
 function prepareStop(rawStop) {
   return {
     id: rawStop.ID,
@@ -8,7 +12,7 @@ function prepareStop(rawStop) {
   };
 }
 function prepareRoute(rawRoute) {
-  const rawPoints = (rawRoute.VehicleType === 3)
+  const rawPoints = (rawRoute.VehicleType === VEHICLES.TROLLEY)
     ? rawRoute.Stops
     : (rawRoute.Points || rawRoute.Stops);
 
