@@ -88,10 +88,10 @@ export default {
   computed: {
     ...mapState({
       url: (state) => state.map.url,
-      selectedRouteId: 'selectedRouteId',
-      selectedStopId: 'selectedStopId',
-      tabActive: 'tabActive',
-      tabs: 'tabs',
+      selectedRouteId: (state) => state.selection.selectedRouteId,
+      selectedStopId: (state) => state.selection.selectedStopId,
+      tabActive: (state) => state.interface.tabActive,
+      tabs: (state) => state.interface.tabs,
     }),
     ...mapGetters(['routes']),
     zoom: {
