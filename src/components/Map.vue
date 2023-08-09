@@ -159,7 +159,7 @@ export default {
     centerMapOnStop(id) {
       const stopEl = this.$refs[`stop-${id}`][0];
 
-      this.$refs.map.mapObject.flyTo(stopEl.mapObject.getLatLng(), 13);
+      this.$refs.map.mapObject.setView(stopEl.mapObject.getLatLng(), 13);
     },
   },
 };
